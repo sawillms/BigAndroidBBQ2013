@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.regal.dreamtri">
+
+    <!-- This is the platform API where NativeActivity was introduced. -->
+    <uses-sdk android:targetSdkVersion="9" android:minSdkVersion="9" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <application
+            android:icon="@drawable/ic_launcher_regal"
+            android:label="@string/dreamtri_activity"
+            android:hasCode="false"
+            android:debuggable="true"
+            >
+        <!-- The native code is actually implementing the built-in NativeActivity -->
+        <activity android:name="android.app.NativeActivity"
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            	android:launchMode="singleTask"
+            	android:configChanges="orientation|keyboardHidden">
+            <meta-data android:name="android.app.lib_name"
+                    android:value="dreamtri" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+    <uses-feature android:glEsVersion="0x00020000"/>
+    <uses-sdk android:minSdkVersion="10"/>
+</manifest>

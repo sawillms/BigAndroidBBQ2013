@@ -1,0 +1,90 @@
+October 11, 2013
+
+This is a solution to the 2013 Big Android BBQ Code Kitchen challenge, below.
+
+Seth Williams
+swilliams@nvidia.com
+_____________
+
+
+GOAL:
+	Cook up a Regal sample demonstrating rendering of an immediate mode triangle that can be moved with the SHIELD controller.
+
+REWARD:
+	Successfully baking this challenge will get your name into a drawing for a shiny new NVIDIA SHIELD (a $299.99 value)!
+
+TIMELINE:
+	This challenge can be completed anytime before the NVIDIA presentation, "Beyond Phones and Tablets: Developing for Dedicated Android Gaming Systems", in Room One at 1:30pm Saturday.  The drawing will be held at the end of our presentation at approximately 2:30pm.
+
+INGREDIENTS:
+
+1) Regal: One GL to Rule Them All
+	http://github.com/p3/regal
+
+Pay particular attention to the "dreamtorus" sample:
+	https://github.com/p3/regal/tree/master/examples/dreamtorus/android
+
+2) OpenGL basics can be picked up at:
+	http://nehe.gamedev.net/
+
+While you're at it, check out the cool GTC presentation linked on that home page ;)
+
+3) SHIELD controller reference, while not completely current, will help to get you through this:
+	http://docs.nvidia.com/tegra/index.html#AN_GC_Quickdoc_Amalgamated_Gamepad.html
+
+If you encounter difficulty handing the controller events, contact your friendly local NVIDIA staff member for an updated document that is not yet being hosted publicly.
+
+DIRECTIONS:
+
+1) Download and build Regal for Android (invoke ndk-build in build/android/Regal).
+
+2) Statically link Regal into a native application.  If you use JNI (as opposed to pure native) remember to register your EGL context with Regal:
+
+RegalMakeCurrent(eglGetCurrentContext());
+
+Linking Regal is accomplished with Android's build system's concept of prebuilts.  Copy the library to your jni folder.  Add this prefix to your Android.mk:
+
+##############################################################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := Regal_static
+LOCAL_SRC_FILES := libRegal_static.a
+
+include $(PREBUILT_STATIC_LIBRARY)
+##############################################################################
+
+Then in the native library rules add this additional link line:
+
+LOCAL_WHOLE_STATIC_LIBRARIES := Regal_static
+
+And add this to your Application.mk so that Regal's STL dependency is built and copied into your APK:
+
+APP_STL := stlport_static 
+
+It's not required but is convenient to copy the Regal includes to jni/include and then simply include Regal.h instead of both egl.h and gl2.h:
+
+#include <GL/Regal.h>
+
+3) Render a colorful triangle using immediate mode.  Style is left to the cook.
+
+4) Add movement for SHIELD.  The SHIELD controls should do the following to the triangle:
+	1) L1 & R1 move the triangle left and right, respectively.
+	2) L2 & R2 move the triangle left and right, respectively.
+	3) DPAD L & R move the triangle left and right, respectively.
+	4) LAS L & R move the triangle left and right, respectively.
+	5) RAS L & R move the triangle left and right, respectively.  There's a pattern here somewhere...
+	6) LAS and RAS push move the triangle left and right, respectively.
+
+Note that the AMotionEvent_getAxisValue, critical for getting joystick axis values, is not yet exposed by the NDK, so you'll need to load the symbol manually in your native code:
+
+#include <dlfcn.h>
+
+extern float AMotionEvent_getAxisValue(const AInputEvent* motion_event, int32_t axis, size_t pointer_index);
+static typeof(AMotionEvent_getAxisValue) *p_AMotionEvent_getAxisValue;
+#define AMotionEvent_getAxisValue (*p_AMotionEvent_getAxisValue)
+
+void android_main(struct android_app* state) {
+    p_AMotionEvent_getAxisValue = reinterpret_cast<float (*)(const AInputEvent* motion_event, int32_t axis, size_t pointer_index)>(dlsym(RTLD_DEFAULT, "AMotionEvent_getAxisValue"));
+    ...
+
+5) Show an NVIDIA staff member the completed sample to enter the raffle.
